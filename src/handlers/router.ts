@@ -7,6 +7,8 @@ import {
 	ADMIN_JAM,
 	MAIN_MENU_NEXT,
 	THANKS,
+	PUBLIKASI,
+	WEB_BUSEL,
 } from "../utils/messages";
 import { enterAdminMode, isInAdminMode, exitAdminMode } from "./admin";
 import {
@@ -75,15 +77,18 @@ export async function handleMessage(
 				return;
 			case "4":
 				await sock.sendMessage(sender, { text: STATISTIK_UMUM });
+				await sock.sendMessage(sender, { text: WEB_BUSEL });
 				await sock.sendMessage(sender, { text: THANKS });
 				await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
 				return;
 			case "5":
+				await sock.sendMessage(sender, { text: PUBLIKASI });
 				await sendPDF(
 					sock,
 					sender,
 					"Kabupaten Buton Selatan Dalam Angka 2025.pdf"
 				);
+				await sock.sendMessage(sender, { text: WEB_BUSEL });
 				await sock.sendMessage(sender, { text: THANKS });
 				await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
 				return;
@@ -170,53 +175,67 @@ export async function handleMessage(
 		} else if (level === "6") {
 			switch (text) {
 				case "1":
+					await sock.sendMessage(sender, { text: PUBLIKASI });
 					await sendPDF(
 						sock,
 						sender,
 						`Kecamatan Batu Atas Dalam Angka 2025.pdf`
 					);
+					await sock.sendMessage(sender, { text: WEB_BUSEL });
 					await sock.sendMessage(sender, { text: THANKS });
 					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
 					break;
 				case "2":
+					await sock.sendMessage(sender, { text: PUBLIKASI });
 					await sendPDF(
 						sock,
 						sender,
 						`Kecamatan Lapandewa Dalam Angka 2025.pdf`
 					);
+					await sock.sendMessage(sender, { text: WEB_BUSEL });
 					await sock.sendMessage(sender, { text: THANKS });
 					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
 					break;
 				case "3":
+					await sock.sendMessage(sender, { text: PUBLIKASI });
 					await sendPDF(
 						sock,
 						sender,
 						`Kecamatan Sampolawa Dalam Angka 2025.pdf`
 					);
+					await sock.sendMessage(sender, { text: WEB_BUSEL });
 					await sock.sendMessage(sender, { text: THANKS });
 					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
 					break;
 				case "4":
+					await sock.sendMessage(sender, { text: PUBLIKASI });
 					await sendPDF(sock, sender, `Kecamatan Batauga Dalam Angka 2025.pdf`);
+					await sock.sendMessage(sender, { text: WEB_BUSEL });
 					await sock.sendMessage(sender, { text: THANKS });
 					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
 					break;
 				case "5":
+					await sock.sendMessage(sender, { text: PUBLIKASI });
 					await sendPDF(
 						sock,
 						sender,
 						`Kecamatan Siompu Barat Dalam Angka 2025.pdf`
 					);
+					await sock.sendMessage(sender, { text: WEB_BUSEL });
 					await sock.sendMessage(sender, { text: THANKS });
 					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
 					break;
 				case "6":
+					await sock.sendMessage(sender, { text: PUBLIKASI });
 					await sendPDF(sock, sender, `Kecamatan Siompu Dalam Angka 2025.pdf`);
+					await sock.sendMessage(sender, { text: WEB_BUSEL });
 					await sock.sendMessage(sender, { text: THANKS });
 					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
 					break;
 				case "7":
+					await sock.sendMessage(sender, { text: PUBLIKASI });
 					await sendPDF(sock, sender, `Kecamatan Kadatua Dalam Angka 2025.pdf`);
+					await sock.sendMessage(sender, { text: WEB_BUSEL });
 					await sock.sendMessage(sender, { text: THANKS });
 					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
 					break;

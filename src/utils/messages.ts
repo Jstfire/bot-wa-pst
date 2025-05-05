@@ -12,6 +12,8 @@ Silakan pilih layanan yang Anda butuhkan dengan mengetik angka sesuai pilihan be
 
 📌 Cukup ketik angka layanan (contoh: 3) untuk mulai.
 
+Kunjungi buselkab.bps.go.id untuk data dan publikasi lainnya.
+
 > _Pesan ini dikirim otomatis oleh Bot PST BPS Kabupaten Buton Selatan._ `;
 
 export const MAIN_MENU_NEXT = `Silakan pilih layanan yang Anda butuhkan dengan mengetik angka sesuai pilihan berikut:
@@ -25,6 +27,8 @@ export const MAIN_MENU_NEXT = `Silakan pilih layanan yang Anda butuhkan dengan m
 7. 💬 Chat Admin – Hubungi petugas langsung
 
 📌 Cukup ketik angka layanan (contoh: 3) untuk mulai.
+
+Kunjungi buselkab.bps.go.id untuk data dan publikasi lainnya.
 
 > _Pesan ini dikirim otomatis oleh Bot PST BPS Kabupaten Buton Selatan._ `;
 
@@ -119,3 +123,5 @@ export const ADMIN_END = `Jika Anda sudah selesai berkonsultasi, *silakan ketik 
 🙏 Terima kasih telah menggunakan layanan kami!`;
 
 export const THANKS = `*🙏 Terima kasih telah menggunakan layanan kami!*`;
+export const PUBLIKASI = `*📘 Berikut merupakan _file_ publikasi yang ingin Anda akses.*`;
+export const WEB_BUSEL = `*🌐 Kunjungi buselkab.bps.go.id untuk data dan publikasi lainnya.*`;
