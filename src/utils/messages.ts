@@ -106,10 +106,12 @@ export const STATISTIK_UMUM = `*📊 Statistik Umum Kabupaten Buton Selatan*
 * *_PDRB ADHK:* Produk Domestik Regional Bruto Atas Dasar Harga Konstan (tahun dasar 2010)_
 `;
 
-export const JADWAL_BUKA = `*📍 Lokasi Pelayanan Statistik Terpadu (PST) BPS Kabupaten Buton Selatan*
-🗺️ Google Maps: https://maps.app.goo.gl/4F8689coJbEdcxGy6
+export const LOKASI = `*📍 Lokasi Pelayanan Statistik Terpadu (PST) BPS Kabupaten Buton Selatan*
 
-🕒 Jadwal Pelayanan:
+🗺️ Google Maps: `;
+
+export const JADWAL_BUKA = `*🕒 Jadwal Pelayanan:*
+
 * 📅 *Senin – Kamis:* 07.30 – 16.00 WITA
 * 📅 *Jumat:* 07.30 – 16.30 WITA
 * ❌ *Sabtu & Minggu:* Libur

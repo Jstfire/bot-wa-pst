@@ -9,6 +9,7 @@ import {
 	THANKS,
 	PUBLIKASI,
 	WEB_BUSEL,
+	LOKASI,
 } from "../utils/messages";
 import { enterAdminMode, isInAdminMode, exitAdminMode } from "./admin";
 import {
@@ -19,6 +20,7 @@ import {
 } from "../utils/session";
 import { sendPDF } from "./sendPdf";
 import { isUserBlocked, recordMessage } from "../utils/antispam";
+import { sendLinkPreview } from "../utils/urlpreview";
 
 export async function handleMessage(
 	sock: WASocket,
@@ -44,13 +46,11 @@ export async function handleMessage(
 			await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
 			return;
 		}
-
 		return;
 	}
+
 	if (!getSession(sender) && !text.startsWith("00")) {
-		await sock.sendMessage(sender, {
-			text: MAIN_MENU,
-		});
+		await sock.sendMessage(sender, { text: MAIN_MENU });
 	}
 
 	if (isSessionExpired(sender)) {
@@ -62,10 +62,8 @@ export async function handleMessage(
 	}
 
 	setSession(sender);
-
 	const session = getSession(sender);
 
-	// Handle main menu
 	if (!session.level) {
 		switch (text) {
 			case "1":
@@ -73,15 +71,24 @@ export async function handleMessage(
 			case "3":
 			case "6":
 				session.level = text;
+				await sock.sendMessage(sender, {
+					text: "⏳ Mohon ditunggu sebentar...",
+				});
 				await sock.sendMessage(sender, { text: SUB_MENUS[text] });
 				return;
 			case "4":
+				await sock.sendMessage(sender, {
+					text: "⏳ Mohon ditunggu sebentar...",
+				});
 				await sock.sendMessage(sender, { text: STATISTIK_UMUM });
 				await sock.sendMessage(sender, { text: WEB_BUSEL });
 				await sock.sendMessage(sender, { text: THANKS });
 				await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
 				return;
 			case "5":
+				await sock.sendMessage(sender, {
+					text: "⏳ Mohon ditunggu sebentar...",
+				});
 				await sock.sendMessage(sender, { text: PUBLIKASI });
 				await sendPDF(
 					sock,
@@ -97,8 +104,9 @@ export async function handleMessage(
 				return;
 			default:
 				await sock.sendMessage(sender, {
-					text: `${MAIN_MENU}`,
+					text: "⏳ Mohon ditunggu sebentar...",
 				});
+				await sock.sendMessage(sender, { text: MAIN_MENU });
 		}
 	} else {
 		if (text === "99") {
@@ -108,18 +116,23 @@ export async function handleMessage(
 		}
 
 		const level = session.level;
+
 		if (level === "1") {
 			if (text === "1") {
 				await sock.sendMessage(sender, {
 					text: "⏳ Mohon ditunggu sebentar...",
 				});
-				await sock.sendMessage(sender, {
-					text: "📚 Kunjungi PST Online: https://perpustakaan.bps.go.id/",
-				});
+				await sendLinkPreview(
+					sock,
+					sender,
+					"*📚 Kunjungi PST Online:* ",
+					"https://perpustakaan.bps.go.id/opac/"
+				);
 				await sock.sendMessage(sender, { text: THANKS });
-				await sock.sendMessage(sender, { text: SUB_MENUS["1"] });
 			} else if (text === "2") {
-				await sock.sendMessage(sender, { text: JADWAL_BUKA });
+				await sock.sendMessage(sender, {
+					text: "⏳ Mohon ditunggu sebentar...",
+				});
 				await sock.sendMessage(sender, {
 					location: {
 						degreesLatitude: -5.608591411817911,
@@ -129,32 +142,44 @@ export async function handleMessage(
 							"9JR2+F4C, Jl. Lamaindo, Laompo, Batauga, Kabupaten Buton, Sulawesi Tenggara",
 					},
 				});
+				await sendLinkPreview(
+					sock,
+					sender,
+					LOKASI,
+					"https://maps.app.goo.gl/e66zfh8eGxsqj2ET7"
+				);
+				await sock.sendMessage(sender, { text: JADWAL_BUKA });
 				await sock.sendMessage(sender, { text: THANKS });
-				await sock.sendMessage(sender, { text: SUB_MENUS["1"] });
-			} else
-				await sock.sendMessage(sender, {
-					text: `❗Pilihan tidak valid.`,
-				});
-			await sock.sendMessage(sender, {
-				text: SUB_MENUS[level],
-			});
+			} else {
+				await sock.sendMessage(sender, { text: `❗Pilihan tidak valid.` });
+			}
+			await sock.sendMessage(sender, { text: SUB_MENUS[level] });
 		} else if (level === "2") {
 			if (text === "1") {
 				await sock.sendMessage(sender, {
-					text: `🔗 Akses Romantik: https://romantik.web.bps.go.id/`,
+					text: "⏳ Mohon ditunggu sebentar...",
 				});
+				await sendLinkPreview(
+					sock,
+					sender,
+					"*🔗 Akses Romantik:* ",
+					"https://romantik.web.bps.go.id/"
+				);
 				await sock.sendMessage(sender, { text: THANKS });
 				await sock.sendMessage(sender, { text: SUB_MENUS["2"] });
 			} else if (text === "2") {
 				await enterAdminMode(sock, sender);
-			} else
+			} else {
 				await sock.sendMessage(sender, {
 					text: `❗Pilihan tidak valid.\n\n${SUB_MENUS[level]}`,
 				});
+			}
 		} else if (level === "3") {
 			if (text === "1") await enterAdminMode(sock, sender);
 			else if (text === "2") {
-				await sock.sendMessage(sender, { text: JADWAL_BUKA });
+				await sock.sendMessage(sender, {
+					text: "⏳ Mohon ditunggu sebentar...",
+				});
 				await sock.sendMessage(sender, {
 					location: {
 						degreesLatitude: -5.608591411817911,
@@ -164,83 +189,42 @@ export async function handleMessage(
 							"9JR2+F4C, Jl. Lamaindo, Laompo, Batauga, Kabupaten Buton, Sulawesi Tenggara",
 					},
 				});
+				await sendLinkPreview(
+					sock,
+					sender,
+					LOKASI,
+					"https://maps.app.goo.gl/e66zfh8eGxsqj2ET7"
+				);
+				await sock.sendMessage(sender, { text: JADWAL_BUKA });
 				await sock.sendMessage(sender, { text: THANKS });
 				await sock.sendMessage(sender, { text: SUB_MENUS["3"] });
-			} else
+			} else {
 				await sock.sendMessage(sender, {
 					text: `❗Pilihan tidak valid.\n\n${SUB_MENUS[level]}`,
 				});
+			}
 		} else if (level === "6") {
-			switch (text) {
-				case "1":
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(
-						sock,
-						sender,
-						`Kecamatan Batu Atas Dalam Angka 2025.pdf`
-					);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
-					break;
-				case "2":
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(
-						sock,
-						sender,
-						`Kecamatan Lapandewa Dalam Angka 2025.pdf`
-					);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
-					break;
-				case "3":
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(
-						sock,
-						sender,
-						`Kecamatan Sampolawa Dalam Angka 2025.pdf`
-					);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
-					break;
-				case "4":
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(sock, sender, `Kecamatan Batauga Dalam Angka 2025.pdf`);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
-					break;
-				case "5":
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(
-						sock,
-						sender,
-						`Kecamatan Siompu Barat Dalam Angka 2025.pdf`
-					);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
-					break;
-				case "6":
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(sock, sender, `Kecamatan Siompu Dalam Angka 2025.pdf`);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
-					break;
-				case "7":
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(sock, sender, `Kecamatan Kadatua Dalam Angka 2025.pdf`);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
-					break;
-				case "99":
-					clearSession(sender);
-					await sock.sendMessage(sender, { text: MAIN_MENU });
-					break;
+			const pdfMap = {
+				"1": "Kecamatan Batu Atas Dalam Angka 2025.pdf",
+				"2": "Kecamatan Lapandewa Dalam Angka 2025.pdf",
+				"3": "Kecamatan Sampolawa Dalam Angka 2025.pdf",
+				"4": "Kecamatan Batauga Dalam Angka 2025.pdf",
+				"5": "Kecamatan Siompu Barat Dalam Angka 2025.pdf",
+				"6": "Kecamatan Siompu Dalam Angka 2025.pdf",
+				"7": "Kecamatan Kadatua Dalam Angka 2025.pdf",
+			};
+
+			if (text in pdfMap) {
+				await sock.sendMessage(sender, { text: PUBLIKASI });
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level as keyof typeof SUB_MENUS],
+				});
+				await sock.sendMessage(sender, { text: WEB_BUSEL });
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
+			} else if (text === "99") {
+				clearSession(sender);
+				await sock.sendMessage(sender, { text: MAIN_MENU });
 			}
 		}
 	}
