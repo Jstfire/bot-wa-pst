@@ -204,7 +204,7 @@ export async function handleMessage(
 				});
 			}
 		} else if (level === "6") {
-			const pdfMap = {
+			const pdfMap: { [key: string]: string } = {
 				"1": "Kecamatan Batu Atas Dalam Angka 2025.pdf",
 				"2": "Kecamatan Lapandewa Dalam Angka 2025.pdf",
 				"3": "Kecamatan Sampolawa Dalam Angka 2025.pdf",
@@ -216,9 +216,7 @@ export async function handleMessage(
 
 			if (text in pdfMap) {
 				await sock.sendMessage(sender, { text: PUBLIKASI });
-				await sock.sendMessage(sender, {
-					text: SUB_MENUS[level as keyof typeof SUB_MENUS],
-				});
+				await sendPDF(sock, sender, pdfMap[text]);
 				await sock.sendMessage(sender, { text: WEB_BUSEL });
 				await sock.sendMessage(sender, { text: THANKS });
 				await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
