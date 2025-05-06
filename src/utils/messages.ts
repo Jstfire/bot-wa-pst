@@ -127,3 +127,4 @@ export const ADMIN_END = `Jika Anda sudah selesai berkonsultasi, *silakan ketik 
 export const THANKS = `*🙏 Terima kasih telah menggunakan layanan kami!*`;
 export const PUBLIKASI = `*📘 Berikut merupakan _file_ publikasi yang ingin Anda akses.*`;
 export const WEB_BUSEL = `*🌐 Kunjungi buselkab.bps.go.id untuk data dan publikasi lainnya.*`;
+export const WAITING = `*⏳ Mohon ditunggu sebentar...*`;

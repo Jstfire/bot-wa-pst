@@ -10,6 +10,7 @@ import {
 	PUBLIKASI,
 	WEB_BUSEL,
 	LOKASI,
+	WAITING,
 } from "../utils/messages";
 import { enterAdminMode, isInAdminMode, exitAdminMode } from "./admin";
 import {
@@ -72,13 +73,13 @@ export async function handleMessage(
 			case "6":
 				session.level = text;
 				await sock.sendMessage(sender, {
-					text: "⏳ Mohon ditunggu sebentar...",
+					text: WAITING,
 				});
 				await sock.sendMessage(sender, { text: SUB_MENUS[text] });
 				return;
 			case "4":
 				await sock.sendMessage(sender, {
-					text: "⏳ Mohon ditunggu sebentar...",
+					text: WAITING,
 				});
 				await sock.sendMessage(sender, { text: STATISTIK_UMUM });
 				await sock.sendMessage(sender, { text: WEB_BUSEL });
@@ -87,7 +88,7 @@ export async function handleMessage(
 				return;
 			case "5":
 				await sock.sendMessage(sender, {
-					text: "⏳ Mohon ditunggu sebentar...",
+					text: WAITING,
 				});
 				await sock.sendMessage(sender, { text: PUBLIKASI });
 				await sendPDF(
@@ -104,7 +105,7 @@ export async function handleMessage(
 				return;
 			default:
 				await sock.sendMessage(sender, {
-					text: "⏳ Mohon ditunggu sebentar...",
+					text: WAITING,
 				});
 				await sock.sendMessage(sender, { text: MAIN_MENU });
 		}
@@ -120,7 +121,7 @@ export async function handleMessage(
 		if (level === "1") {
 			if (text === "1") {
 				await sock.sendMessage(sender, {
-					text: "⏳ Mohon ditunggu sebentar...",
+					text: WAITING,
 				});
 				await sendLinkPreview(
 					sock,
@@ -131,7 +132,7 @@ export async function handleMessage(
 				await sock.sendMessage(sender, { text: THANKS });
 			} else if (text === "2") {
 				await sock.sendMessage(sender, {
-					text: "⏳ Mohon ditunggu sebentar...",
+					text: WAITING,
 				});
 				await sock.sendMessage(sender, {
 					location: {
@@ -157,7 +158,7 @@ export async function handleMessage(
 		} else if (level === "2") {
 			if (text === "1") {
 				await sock.sendMessage(sender, {
-					text: "⏳ Mohon ditunggu sebentar...",
+					text: WAITING,
 				});
 				await sendLinkPreview(
 					sock,
@@ -178,7 +179,7 @@ export async function handleMessage(
 			if (text === "1") await enterAdminMode(sock, sender);
 			else if (text === "2") {
 				await sock.sendMessage(sender, {
-					text: "⏳ Mohon ditunggu sebentar...",
+					text: WAITING,
 				});
 				await sock.sendMessage(sender, {
 					location: {
@@ -215,6 +216,9 @@ export async function handleMessage(
 			};
 
 			if (text in pdfMap) {
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
 				await sock.sendMessage(sender, { text: PUBLIKASI });
 				await sendPDF(sock, sender, pdfMap[text]);
 				await sock.sendMessage(sender, { text: WEB_BUSEL });
