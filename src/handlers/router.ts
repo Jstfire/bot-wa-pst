@@ -113,18 +113,11 @@ export async function handleMessage(
 				await sock.sendMessage(sender, {
 					text: "⏳ Mohon ditunggu sebentar...",
 				});
-
-				try {
-					await sock.sendMessage(sender, {
-						text: "📚 Kunjungi PST Online: https://perpustakaan.bps.go.id/",
-						// linkPreview: true,
-					});
-				} catch (error) {
-					console.error("Gagal kirim dengan preview:", error);
-					await sock.sendMessage(sender, {
-						text: "📚 Kunjungi PST Online: https://perpustakaan.bps.go.id/",
-					});
-				}
+				await sock.sendMessage(sender, {
+					text: "📚 Kunjungi PST Online: https://perpustakaan.bps.go.id/",
+				});
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, { text: SUB_MENUS["1"] });
 			} else if (text === "2") {
 				await sock.sendMessage(sender, { text: JADWAL_BUKA });
 				await sock.sendMessage(sender, {
@@ -136,10 +129,15 @@ export async function handleMessage(
 							"9JR2+F4C, Jl. Lamaindo, Laompo, Batauga, Kabupaten Buton, Sulawesi Tenggara",
 					},
 				});
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, { text: SUB_MENUS["1"] });
 			} else
 				await sock.sendMessage(sender, {
-					text: `❗Pilihan tidak valid.\n\n${SUB_MENUS[level]}`,
+					text: `❗Pilihan tidak valid.`,
 				});
+			await sock.sendMessage(sender, {
+				text: SUB_MENUS[level],
+			});
 		} else if (level === "2") {
 			if (text === "1") {
 				await sock.sendMessage(sender, {
