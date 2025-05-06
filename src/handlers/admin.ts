@@ -1,5 +1,10 @@
 import { WASocket } from "@whiskeysockets/baileys";
-import { ADMIN_END, ADMIN_JAM, MAIN_MENU_NEXT } from "../utils/messages";
+import {
+	ADMIN_END,
+	ADMIN_JAM,
+	MAIN_MENU_NEXT,
+	SUB_MENUS,
+} from "../utils/messages";
 const ADMIN_NUMBER = "6289616370100@s.whatsapp.net";
 const adminSessions = new Set<string>();
 
@@ -11,14 +16,19 @@ export function exitAdminMode(sender: string) {
 	adminSessions.delete(sender);
 }
 
-export async function enterAdminMode(sock: WASocket, sender: string) {
+export async function enterAdminMode(
+	sock: WASocket,
+	sender: string,
+	level: string
+) {
 	const hour = getHours(new Date(), { timeZone: "Asia/Makassar" }); // WITA = GMT+8
 
 	if (hour < 8 || hour >= 20) {
 		await sock.sendMessage(sender, {
 			text: `*❗Maaf, layanan admin tidak tersedia saat ini.🙏*\n\n${ADMIN_JAM}`,
 		});
-		await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
+		const menuText = level === "null" ? MAIN_MENU_NEXT : SUB_MENUS[level];
+		await sock.sendMessage(sender, { text: menuText });
 		return;
 	}
 

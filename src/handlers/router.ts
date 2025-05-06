@@ -11,6 +11,7 @@ import {
 	WEB_BUSEL,
 	LOKASI,
 	WAITING,
+	INVALID,
 } from "../utils/messages";
 import { enterAdminMode, isInAdminMode, exitAdminMode } from "./admin";
 import {
@@ -101,7 +102,7 @@ export async function handleMessage(
 				await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
 				return;
 			case "7":
-				await enterAdminMode(sock, sender);
+				await enterAdminMode(sock, sender, "null");
 				return;
 			default:
 				await sock.sendMessage(sender, {
@@ -130,6 +131,9 @@ export async function handleMessage(
 					"https://perpustakaan.bps.go.id/opac/"
 				);
 				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
 			} else if (text === "2") {
 				await sock.sendMessage(sender, {
 					text: WAITING,
@@ -151,10 +155,17 @@ export async function handleMessage(
 				);
 				await sock.sendMessage(sender, { text: JADWAL_BUKA });
 				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
 			} else {
-				await sock.sendMessage(sender, { text: `❗Pilihan tidak valid.` });
+				await sock.sendMessage(sender, {
+					text: INVALID,
+				});
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
 			}
-			await sock.sendMessage(sender, { text: SUB_MENUS[level] });
 		} else if (level === "2") {
 			if (text === "1") {
 				await sock.sendMessage(sender, {
@@ -167,16 +178,19 @@ export async function handleMessage(
 					"https://romantik.web.bps.go.id/"
 				);
 				await sock.sendMessage(sender, { text: THANKS });
-				await sock.sendMessage(sender, { text: SUB_MENUS["2"] });
+				await sock.sendMessage(sender, { text: SUB_MENUS[level] });
 			} else if (text === "2") {
-				await enterAdminMode(sock, sender);
+				await enterAdminMode(sock, sender, level);
 			} else {
 				await sock.sendMessage(sender, {
-					text: `❗Pilihan tidak valid.\n\n${SUB_MENUS[level]}`,
+					text: INVALID,
+				});
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
 				});
 			}
 		} else if (level === "3") {
-			if (text === "1") await enterAdminMode(sock, sender);
+			if (text === "1") await enterAdminMode(sock, sender, level);
 			else if (text === "2") {
 				await sock.sendMessage(sender, {
 					text: WAITING,
@@ -198,10 +212,13 @@ export async function handleMessage(
 				);
 				await sock.sendMessage(sender, { text: JADWAL_BUKA });
 				await sock.sendMessage(sender, { text: THANKS });
-				await sock.sendMessage(sender, { text: SUB_MENUS["3"] });
+				await sock.sendMessage(sender, { text: SUB_MENUS[level] });
 			} else {
 				await sock.sendMessage(sender, {
-					text: `❗Pilihan tidak valid.\n\n${SUB_MENUS[level]}`,
+					text: INVALID,
+				});
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
 				});
 			}
 		} else if (level === "6") {
@@ -223,13 +240,16 @@ export async function handleMessage(
 				await sendPDF(sock, sender, pdfMap[text]);
 				await sock.sendMessage(sender, { text: WEB_BUSEL });
 				await sock.sendMessage(sender, { text: THANKS });
-				await sock.sendMessage(sender, { text: SUB_MENUS["6"] });
+				await sock.sendMessage(sender, { text: SUB_MENUS[level] });
 			} else if (text === "99") {
 				clearSession(sender);
 				await sock.sendMessage(sender, { text: MAIN_MENU });
 			} else {
 				await sock.sendMessage(sender, {
-					text: `❗Pilihan tidak valid.\n\n${SUB_MENUS[level]}`,
+					text: INVALID,
+				});
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
 				});
 			}
 		}
