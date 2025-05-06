@@ -21,7 +21,11 @@ import {
 	isSessionExpired,
 } from "../utils/session";
 import { sendPDF } from "./sendPdf";
-import { isUserBlocked, recordMessage } from "../utils/antispam";
+import {
+	isUserBlocked,
+	recordMessage,
+	shouldSendWarning,
+} from "../utils/antispam";
 import { sendLinkPreview } from "../utils/urlpreview";
 
 export async function handleMessage(
@@ -31,12 +35,13 @@ export async function handleMessage(
 	text: string
 ) {
 	if (isUserBlocked(sender)) {
-		await sock.sendMessage(sender, {
-			text: "🚫 Anda diblokir sementara karena mengirim terlalu banyak pesan. Silakan coba lagi beberapa saat.",
-		});
+		if (shouldSendWarning(sender)) {
+			await sock.sendMessage(sender, {
+				text: "🚫 Anda diblokir sementara karena mengirim terlalu banyak pesan. Silakan coba lagi beberapa saat.",
+			});
+		}
 		return;
 	}
-
 	recordMessage(sender);
 
 	if (isInAdminMode(sender)) {
