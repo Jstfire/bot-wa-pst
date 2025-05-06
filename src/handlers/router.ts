@@ -227,6 +227,10 @@ export async function handleMessage(
 			} else if (text === "99") {
 				clearSession(sender);
 				await sock.sendMessage(sender, { text: MAIN_MENU });
+			} else {
+				await sock.sendMessage(sender, {
+					text: `❗Pilihan tidak valid.\n\n${SUB_MENUS[level]}`,
+				});
 			}
 		}
 	}
