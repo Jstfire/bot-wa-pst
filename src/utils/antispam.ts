@@ -33,6 +33,7 @@ function cleanExpiredBlockedUsers() {
 		if (now > time) {
 			blockedUsers.delete(sender);
 			notifiedAdmins.delete(sender);
+			warnedUsers.delete(sender); // 🔁 Reset warning saat blokir selesai
 			changed = true;
 		}
 	}
@@ -48,6 +49,7 @@ export function isUserBlocked(sender: string): boolean {
 	if (Date.now() > unblockTime) {
 		blockedUsers.delete(sender);
 		notifiedAdmins.delete(sender);
+		warnedUsers.delete(sender); // 🔁 Reset warning saat blokir selesai
 		saveBlockedUsers();
 		return false;
 	}
@@ -83,15 +85,15 @@ export function recordMessage(
 	const totalLimit = 30;
 
 	console.log(
-		`Pesan dari ${sender}: ${timestamps.length}/${totalLimit} pesan dalam 30 menit.`
+		`Pesan dari ${sender}: ${timestamps.length}/${totalLimit} pesan dalam 30 detik.`
 	);
 	if (isValid) {
 		console.log(
-			`Pesan dari ${sender}: ${timestamps.length}/${validLimit} pesan dalam 30 menit, valid=${isValid}`
+			`Pesan dari ${sender}: ${timestamps.length}/${validLimit} pesan dalam 30 detik, valid=${isValid}`
 		);
 	} else {
 		console.log(
-			`Pesan dari ${sender}: ${timestamps.length}/${invalidLimit} pesan dalam 30 menit, valid=${isValid}`
+			`Pesan dari ${sender}: ${timestamps.length}/${invalidLimit} pesan dalam 30 detik, valid=${isValid}`
 		);
 	}
 
@@ -126,16 +128,14 @@ export function recordMessage(
 }
 
 export function shouldSendWarning(sender: string): boolean {
-	const now = Date.now();
-	const thirtySecondsAgo = now - 30_000;
-
 	const timestamps = warnedUsers.get(sender) || [];
-	const recent = timestamps.filter((t) => t > thirtySecondsAgo);
 
-	if (recent.length >= 5) return false;
+	// Maks 3 peringatan per periode blokir
+	if (timestamps.length >= 3) return false;
 
-	recent.push(now);
-	warnedUsers.set(sender, recent);
+	timestamps.push(Date.now());
+	warnedUsers.set(sender, timestamps);
+	console.log(`Peringatan untuk ${sender}: ${timestamps.length}/3`);
 	return true;
 }
 

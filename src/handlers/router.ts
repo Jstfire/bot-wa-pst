@@ -73,195 +73,193 @@ export async function handleMessage(
 	}
 
 	setSession(sender);
-	// Update the existing session variable instead of redeclaring it
-	let updatedSession = getSession(sender);
+	const updatedSession = getSession(sender);
+
 	if (!updatedSession.level) {
-		if (!session.level) {
-			switch (text) {
-				case "1":
-				case "2":
-				case "3":
-				case "6":
-					session.level = text;
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sock.sendMessage(sender, { text: SUB_MENUS[text] });
-					return;
-				case "4":
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sock.sendMessage(sender, { text: STATISTIK_UMUM });
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
-					return;
-				case "5":
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(
-						sock,
-						sender,
-						"Kabupaten Buton Selatan Dalam Angka 2025.pdf"
-					);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
-					return;
-				case "7":
-					await enterAdminMode(sock, sender, "null");
-					return;
-				default:
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sock.sendMessage(sender, { text: MAIN_MENU });
+		switch (text) {
+			case "1":
+			case "2":
+			case "3":
+			case "6":
+				updatedSession.level = text;
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sock.sendMessage(sender, { text: SUB_MENUS[text] });
+				return;
+			case "4":
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sock.sendMessage(sender, { text: STATISTIK_UMUM });
+				await sock.sendMessage(sender, { text: WEB_BUSEL });
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
+				return;
+			case "5":
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sock.sendMessage(sender, { text: PUBLIKASI });
+				await sendPDF(
+					sock,
+					sender,
+					"Kabupaten Buton Selatan Dalam Angka 2025.pdf"
+				);
+				await sock.sendMessage(sender, { text: WEB_BUSEL });
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, { text: MAIN_MENU_NEXT });
+				return;
+			case "7":
+				await enterAdminMode(sock, sender, "null");
+				return;
+			default:
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sock.sendMessage(sender, { text: MAIN_MENU });
+		}
+	} else {
+		if (text === "99") {
+			clearSession(sender);
+			await sock.sendMessage(sender, { text: MAIN_MENU });
+			return;
+		}
+
+		const level = updatedSession.level;
+
+		if (level === "1") {
+			if (text === "1") {
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sendLinkPreview(
+					sock,
+					sender,
+					"*📚 Kunjungi PST Online:* ",
+					"https://perpustakaan.bps.go.id/opac/"
+				);
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
+			} else if (text === "2") {
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sock.sendMessage(sender, {
+					location: {
+						degreesLatitude: -5.608591411817911,
+						degreesLongitude: 122.60022162024016,
+						name: "Kantor Badan Pusat Statistik Kab. Buton Selatan",
+						address:
+							"9JR2+F4C, Jl. Lamaindo, Laompo, Batauga, Kabupaten Buton, Sulawesi Tenggara",
+					},
+				});
+				await sendLinkPreview(
+					sock,
+					sender,
+					LOKASI,
+					"https://maps.app.goo.gl/e66zfh8eGxsqj2ET7"
+				);
+				await sock.sendMessage(sender, { text: JADWAL_BUKA });
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
+			} else {
+				await sock.sendMessage(sender, {
+					text: INVALID,
+				});
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
 			}
-		} else {
-			if (text === "99") {
+		} else if (level === "2") {
+			if (text === "1") {
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sendLinkPreview(
+					sock,
+					sender,
+					"*🔗 Akses Romantik:* ",
+					"https://romantik.web.bps.go.id/"
+				);
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, { text: SUB_MENUS[level] });
+			} else if (text === "2") {
+				await enterAdminMode(sock, sender, level);
+			} else {
+				await sock.sendMessage(sender, {
+					text: INVALID,
+				});
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
+			}
+		} else if (level === "3") {
+			if (text === "1") await enterAdminMode(sock, sender, level);
+			else if (text === "2") {
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sock.sendMessage(sender, {
+					location: {
+						degreesLatitude: -5.608591411817911,
+						degreesLongitude: 122.60022162024016,
+						name: "Kantor Badan Pusat Statistik Kab. Buton Selatan",
+						address:
+							"9JR2+F4C, Jl. Lamaindo, Laompo, Batauga, Kabupaten Buton, Sulawesi Tenggara",
+					},
+				});
+				await sendLinkPreview(
+					sock,
+					sender,
+					LOKASI,
+					"https://maps.app.goo.gl/e66zfh8eGxsqj2ET7"
+				);
+				await sock.sendMessage(sender, { text: JADWAL_BUKA });
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, { text: SUB_MENUS[level] });
+			} else {
+				await sock.sendMessage(sender, {
+					text: INVALID,
+				});
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
+			}
+		} else if (level === "6") {
+			const pdfMap: { [key: string]: string } = {
+				"1": "Kecamatan Batu Atas Dalam Angka 2025.pdf",
+				"2": "Kecamatan Lapandewa Dalam Angka 2025.pdf",
+				"3": "Kecamatan Sampolawa Dalam Angka 2025.pdf",
+				"4": "Kecamatan Batauga Dalam Angka 2025.pdf",
+				"5": "Kecamatan Siompu Barat Dalam Angka 2025.pdf",
+				"6": "Kecamatan Siompu Dalam Angka 2025.pdf",
+				"7": "Kecamatan Kadatua Dalam Angka 2025.pdf",
+			};
+
+			if (text in pdfMap) {
+				await sock.sendMessage(sender, {
+					text: WAITING,
+				});
+				await sock.sendMessage(sender, { text: PUBLIKASI });
+				await sendPDF(sock, sender, pdfMap[text]);
+				await sock.sendMessage(sender, { text: WEB_BUSEL });
+				await sock.sendMessage(sender, { text: THANKS });
+				await sock.sendMessage(sender, { text: SUB_MENUS[level] });
+			} else if (text === "99") {
 				clearSession(sender);
 				await sock.sendMessage(sender, { text: MAIN_MENU });
-				return;
-			}
-			const level = updatedSession.level;
-			// const level = session.level;
-
-			if (level === "1") {
-				if (text === "1") {
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sendLinkPreview(
-						sock,
-						sender,
-						"*📚 Kunjungi PST Online:* ",
-						"https://perpustakaan.bps.go.id/opac/"
-					);
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, {
-						text: SUB_MENUS[level],
-					});
-				} else if (text === "2") {
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sock.sendMessage(sender, {
-						location: {
-							degreesLatitude: -5.608591411817911,
-							degreesLongitude: 122.60022162024016,
-							name: "Kantor Badan Pusat Statistik Kab. Buton Selatan",
-							address:
-								"9JR2+F4C, Jl. Lamaindo, Laompo, Batauga, Kabupaten Buton, Sulawesi Tenggara",
-						},
-					});
-					await sendLinkPreview(
-						sock,
-						sender,
-						LOKASI,
-						"https://maps.app.goo.gl/e66zfh8eGxsqj2ET7"
-					);
-					await sock.sendMessage(sender, { text: JADWAL_BUKA });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, {
-						text: SUB_MENUS[level],
-					});
-				} else {
-					await sock.sendMessage(sender, {
-						text: INVALID,
-					});
-					await sock.sendMessage(sender, {
-						text: SUB_MENUS[level],
-					});
-				}
-			} else if (level === "2") {
-				if (text === "1") {
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sendLinkPreview(
-						sock,
-						sender,
-						"*🔗 Akses Romantik:* ",
-						"https://romantik.web.bps.go.id/"
-					);
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS[level] });
-				} else if (text === "2") {
-					await enterAdminMode(sock, sender, level);
-				} else {
-					await sock.sendMessage(sender, {
-						text: INVALID,
-					});
-					await sock.sendMessage(sender, {
-						text: SUB_MENUS[level],
-					});
-				}
-			} else if (level === "3") {
-				if (text === "1") await enterAdminMode(sock, sender, level);
-				else if (text === "2") {
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sock.sendMessage(sender, {
-						location: {
-							degreesLatitude: -5.608591411817911,
-							degreesLongitude: 122.60022162024016,
-							name: "Kantor Badan Pusat Statistik Kab. Buton Selatan",
-							address:
-								"9JR2+F4C, Jl. Lamaindo, Laompo, Batauga, Kabupaten Buton, Sulawesi Tenggara",
-						},
-					});
-					await sendLinkPreview(
-						sock,
-						sender,
-						LOKASI,
-						"https://maps.app.goo.gl/e66zfh8eGxsqj2ET7"
-					);
-					await sock.sendMessage(sender, { text: JADWAL_BUKA });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS[level] });
-				} else {
-					await sock.sendMessage(sender, {
-						text: INVALID,
-					});
-					await sock.sendMessage(sender, {
-						text: SUB_MENUS[level],
-					});
-				}
-			} else if (level === "6") {
-				const pdfMap: { [key: string]: string } = {
-					"1": "Kecamatan Batu Atas Dalam Angka 2025.pdf",
-					"2": "Kecamatan Lapandewa Dalam Angka 2025.pdf",
-					"3": "Kecamatan Sampolawa Dalam Angka 2025.pdf",
-					"4": "Kecamatan Batauga Dalam Angka 2025.pdf",
-					"5": "Kecamatan Siompu Barat Dalam Angka 2025.pdf",
-					"6": "Kecamatan Siompu Dalam Angka 2025.pdf",
-					"7": "Kecamatan Kadatua Dalam Angka 2025.pdf",
-				};
-
-				if (text in pdfMap) {
-					await sock.sendMessage(sender, {
-						text: WAITING,
-					});
-					await sock.sendMessage(sender, { text: PUBLIKASI });
-					await sendPDF(sock, sender, pdfMap[text]);
-					await sock.sendMessage(sender, { text: WEB_BUSEL });
-					await sock.sendMessage(sender, { text: THANKS });
-					await sock.sendMessage(sender, { text: SUB_MENUS[level] });
-				} else if (text === "99") {
-					clearSession(sender);
-					await sock.sendMessage(sender, { text: MAIN_MENU });
-				} else {
-					await sock.sendMessage(sender, {
-						text: INVALID,
-					});
-					await sock.sendMessage(sender, {
-						text: SUB_MENUS[level],
-					});
-				}
+			} else {
+				await sock.sendMessage(sender, {
+					text: INVALID,
+				});
+				await sock.sendMessage(sender, {
+					text: SUB_MENUS[level],
+				});
 			}
 		}
 	}
