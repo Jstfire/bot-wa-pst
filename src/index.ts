@@ -1,41 +1,55 @@
-import makeWASocket, { useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
-import * as qrcode from 'qrcode-terminal';
-import { handleMessage } from './handlers/router';
-import { initSessionCleaner } from './utils/session';
+import makeWASocket, {
+	useMultiFileAuthState,
+	DisconnectReason,
+} from "@whiskeysockets/baileys";
+import * as qrcode from "qrcode-terminal";
+import { handleMessage } from "./handlers/router";
+import { initSessionCleaner } from "./utils/session";
+import { initApi } from "./api/server";
+import dotenv from "dotenv";
+import { resolve } from "path";
+
+// Load environment variables from .env file
+dotenv.config({ path: resolve(__dirname, "../.env") });
 
 async function startBot() {
-  const { state, saveCreds } = await useMultiFileAuthState('auth');
-  const sock = makeWASocket({
-    auth: state,
-    printQRInTerminal: true
-  });
+	const { state, saveCreds } = await useMultiFileAuthState("auth");
+	const sock = makeWASocket({
+		auth: state,
+		printQRInTerminal: true,
+	});
 
-  sock.ev.on('creds.update', saveCreds);
+	sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on('messages.upsert', async ({ messages, type }) => {
-    if (type !== 'notify') return;
-    const msg = messages[0];
-    if (!msg.message || msg.key.fromMe) return;
+	sock.ev.on("messages.upsert", async ({ messages, type }) => {
+		if (type !== "notify") return;
+		const msg = messages[0];
+		if (!msg.message || msg.key.fromMe) return;
 
-    const sender = msg.key.remoteJid!;
-    const text = msg.message.conversation || msg.message.extendedTextMessage?.text;
+		const sender = msg.key.remoteJid!;
+		const text =
+			msg.message.conversation || msg.message.extendedTextMessage?.text;
 
-    if (text) {
-      await handleMessage(sock, msg, sender, text);
-    }
-  });
+		if (text) {
+			await handleMessage(sock, msg, sender, text);
+		}
+	});
+	sock.ev.on("connection.update", ({ connection, lastDisconnect }) => {
+		if (connection === "close") {
+			const shouldReconnect =
+				(lastDisconnect?.error as any)?.output?.statusCode !==
+				DisconnectReason.loggedOut;
+			if (shouldReconnect) startBot();
+		} else if (connection === "open") {
+			console.log("Bot connected");
 
-  sock.ev.on('connection.update', ({ connection, lastDisconnect }) => {
-    if (connection === 'close') {
-      const shouldReconnect = (lastDisconnect?.error as any)?.output?.statusCode !== DisconnectReason.loggedOut;
-      if (shouldReconnect) startBot();
-    } else if (connection === 'open') {
-      console.log('Bot connected');
-    }
-  });
+			// Initialize API with the connected socket
+			initApi(sock);
+		}
+	});
 
-  // Session timeout cleaner
-  initSessionCleaner();
+	// Session timeout cleaner
+	initSessionCleaner();
 }
 
 startBot();

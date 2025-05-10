@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp API Token Management</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2 {
+      color: #1a73e8;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #1a73e8;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #155db1;
+    }
+    input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .token-container {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      margin: 10px 0;
+      word-break: break-all;
+    }
+    .danger {
+      background: #f44336;
+    }
+    .danger:hover {
+      background: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <h1>WhatsApp API Token Management</h1>
+  
+  <div class="card">
+    <h2>Generate New API Token</h2>
+    <label for="adminKey">Admin Key:</label>
+    <input type="password" id="adminKey" placeholder="Enter admin key">
+    
+    <label for="tokenName">Token Name:</label>
+    <input type="text" id="tokenName" placeholder="e.g., Web Portal, Mobile App">
+    
+    <button id="generateBtn">Generate New Token</button>
+    
+    <div id="newTokenContainer" style="display: none;">
+      <h3>New Token Generated:</h3>
+      <div class="token-container" id="newToken"></div>
+      <p><strong>Important:</strong> Copy this token now. You will not be able to see it again!</p>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>Existing Tokens</h2>
+    <button id="loadTokensBtn">Load Tokens</button>
+    
+    <div id="tokensContainer">
+      <p>No tokens loaded. Click "Load Tokens" to view existing tokens.</p>
+      <table id="tokensTable" style="display: none;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Token ID</th>
+            <th>Created At</th>
+            <th>Last Used</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tokensTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/api';
+    
+    document.getElementById('generateBtn').addEventListener('click', async () => {
+      const adminKey = document.getElementById('adminKey').value;
+      const name = document.getElementById('tokenName').value;
+      
+      if (!adminKey || !name) {
+        alert('Both admin key and token name are required');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_URL}/tokens/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminKey, name })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.message);
+        }
+        
+        document.getElementById('newToken').textContent = data.token;
+        document.getElementById('newTokenContainer').style.display = 'block';
+        document.getElementById('tokenName').value = '';
+        
+        // Reload token list
+        loadTokens();
+      } catch (error) {
+        alert(`Error generating token: ${error.message}`);
+      }
+    });
+    
+    document.getElementById('loadTokensBtn').addEventListener('click', loadTokens);
+    
+    async function loadTokens() {
+      const adminKey = document.getElementById('adminKey').value;
+      
+      if (!adminKey) {
+        alert('Admin key is required to view tokens');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_URL}/tokens?adminKey=${adminKey}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.message);
+        }
+        
+        const tokensTable = document.getElementById('tokensTable');
+        const tokensTableBody = document.getElementById('tokensTableBody');
+        
+        // Clear existing rows
+        tokensTableBody.innerHTML = '';
+        
+        if (data.tokens.length === 0) {
+          document.getElementById('tokensContainer').innerHTML = '<p>No tokens found</p>';
+          return;
+        }
+        
+        tokensTable.style.display = 'table';
+        
+        data.tokens.forEach(token => {
+          const row = document.createElement('tr');
+          
+          row.innerHTML = `
+            <td>${token.name}</td>
+            <td>${token.tokenId}</td>
+            <td>${new Date(token.createdAt).toLocaleString()}</td>
+            <td>${token.lastUsed ? new Date(token.lastUsed).toLocaleString() : 'Never'}</td>
+            <td><button class="danger delete-token" data-token-id="${token.tokenId}">Revoke</button></td>
+          `;
+          
+          tokensTableBody.appendChild(row);
+        });
+        
+        // Add event listeners for revoke buttons
+        document.querySelectorAll('.delete-token').forEach(button => {
+          button.addEventListener('click', async (e) => {
+            const tokenId = e.target.getAttribute('data-token-id');
+            if (confirm(`Are you sure you want to revoke token ${tokenId}?`)) {
+              await revokeToken(tokenId);
+              loadTokens();
+            }
+          });
+        });
+      } catch (error) {
+        alert(`Error loading tokens: ${error.message}`);
+      }
+    }
+    
+    async function revokeToken(tokenId) {
+      const adminKey = document.getElementById('adminKey').value;
+      
+      try {
+        const response = await fetch(`${API_URL}/tokens/${tokenId}?adminKey=${adminKey}`, {
+          method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.message);
+        }
+        
+        alert('Token revoked successfully');
+      } catch (error) {
+        alert(`Error revoking token: ${error.message}`);
+      }
+    }
+  </script>
+</body>
+</html>

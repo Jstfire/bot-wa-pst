@@ -1,0 +1,297 @@
+{
+	"info": {
+		"_postman_id": "a6e6e5a4-8e2d-4f2e-9d54-bc7d3b2c3b1a",
+		"name": "BPS Buton Selatan WhatsApp API",
+		"description": "Collection for testing the WhatsApp API endpoints of BPS Buton Selatan",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Token Management",
+			"item": [
+				{
+					"name": "Generate Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"adminKey\": \"buselkab-bps-admin\",\n    \"name\": \"My Application Token\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tokens/generate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tokens",
+								"generate"
+							]
+						},
+						"description": "Generate a new API token with admin privileges"
+					},
+					"response": []
+				},
+				{
+					"name": "List Tokens",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tokens?adminKey=buselkab-bps-admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tokens"
+							],
+							"query": [
+								{
+									"key": "adminKey",
+									"value": "buselkab-bps-admin"
+								}
+							]
+						},
+						"description": "List all API tokens (requires admin key)"
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke Token",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tokens/:tokenId?adminKey=buselkab-bps-admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tokens",
+								":tokenId"
+							],
+							"query": [
+								{
+									"key": "adminKey",
+									"value": "buselkab-bps-admin"
+								}
+							],
+							"variable": [
+								{
+									"key": "tokenId",
+									"value": "ENTER_TOKEN_ID_HERE",
+									"description": "The first part of the token ID"
+								}
+							]
+						},
+						"description": "Revoke an API token (requires admin key)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing API tokens"
+		},
+		{
+			"name": "Messaging",
+			"item": [
+				{
+					"name": "Send Text Message",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"number\": \"6285123456789\",\n    \"message\": \"Hello from Postman!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/send-message",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"send-message"
+							]
+						},
+						"description": "Send a text message to a WhatsApp number"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Image Message",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"number\": \"6285123456789\",\n    \"imageUrl\": \"https://bps.go.id/images/Bps2020/bps-text.png\",\n    \"caption\": \"Check out this image!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/send-image",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"send-image"
+							]
+						},
+						"description": "Send an image with optional caption to a WhatsApp number"
+					},
+					"response": []
+				},
+				{
+					"name": "Check WhatsApp Number",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{apiToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"number\": \"6285123456789\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/check-number",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"check-number"
+							]
+						},
+						"description": "Check if a phone number exists on WhatsApp"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for sending messages via WhatsApp"
+		},
+		{
+			"name": "Documentation",
+			"item": [
+				{
+					"name": "API Home",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api"
+							]
+						},
+						"description": "Get the API home page with basic documentation"
+					},
+					"response": []
+				},
+				{
+					"name": "API Documentation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/docs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"docs"
+							]
+						},
+						"description": "Get the full API documentation"
+					},
+					"response": []
+				}
+			],
+			"description": "API documentation endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3002",
+			"type": "string"
+		},
+		{
+			"key": "apiToken",
+			"value": "YOUR_API_TOKEN",
+			"type": "string"
+		}
+	]
+}
