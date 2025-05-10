@@ -3,3 +3,4 @@ blocked-users.json
 /node_modules
 /auth
 /data/api-tokens.json
+.env

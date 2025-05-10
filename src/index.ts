@@ -7,10 +7,9 @@ import { handleMessage } from "./handlers/router";
 import { initSessionCleaner } from "./utils/session";
 import { initApi } from "./api/server";
 import dotenv from "dotenv";
-import { resolve } from "path";
 
 // Load environment variables from .env file
-dotenv.config({ path: resolve(__dirname, "../.env") });
+dotenv.config();
 
 async function startBot() {
 	const { state, saveCreds } = await useMultiFileAuthState("auth");

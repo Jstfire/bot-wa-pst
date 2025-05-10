@@ -11,12 +11,16 @@ import { generateApiToken, listApiTokens, revokeApiToken } from "./tokenApi";
 import { sendMessage, sendImageMessage, checkNumber } from "./messageApi";
 
 // Ensure environment variables are loaded
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
-// Check if API_PORT exists, otherwise use fallback
-const PORT = process.env.API_PORT || "3002";
-console.log(`Using API port: ${PORT}`);
+if (!process.env.API_PORT) {
+	console.error(
+		"API_PORT tidak ditemukan di file .env. Aplikasi akan dihentikan."
+	);
+	process.exit(1);
+}
+const PORT = process.env.API_PORT;
 
 // Middleware
 app.use(cors());
