@@ -4,3 +4,4 @@ blocked-users.json
 /auth
 /data/api-tokens.json
 .env
+/dist
