@@ -152,11 +152,22 @@ export async function sendMessage(
 			});
 			return;
 		}
-
 		// Send the message
 		await waSocket.sendMessage(formattedNumber, {
 			text: message,
 		});
+
+		// Record admin message sent via API if this message is from an admin
+		// We need to import recordAdminMessage function to handle this
+		try {
+			const { recordAdminMessage } = require("../utils/session");
+			recordAdminMessage(formattedNumber);
+			console.log(
+				`API message recorded as admin message to: ${formattedNumber}`
+			);
+		} catch (err) {
+			console.error("Failed to record admin message via API:", err);
+		}
 
 		// Return success response
 		res.json({
@@ -216,12 +227,22 @@ export async function sendImageMessage(
 			});
 			return;
 		}
-
 		// Send the image message
 		await waSocket.sendMessage(formattedNumber, {
 			image: { url: imageUrl },
 			caption: caption || undefined,
 		});
+
+		// Record admin message sent via API if this image is from an admin
+		try {
+			const { recordAdminMessage } = require("../utils/session");
+			recordAdminMessage(formattedNumber);
+			console.log(
+				`API image message recorded as admin message to: ${formattedNumber}`
+			);
+		} catch (err) {
+			console.error("Failed to record admin image message via API:", err);
+		}
 
 		// Return success response
 		res.json({

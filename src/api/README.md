@@ -19,11 +19,13 @@ All API requests require a token for authentication. Tokens can be managed throu
 **Method:** `POST`
 
 **Headers:**
+
 - `Authorization: Bearer YOUR_API_TOKEN`
 - `Content-Type: application/json`
 
 **Request Body:**
-```json 
+
+```json
 {
   "number": "628123456789",
   "message": "Your message text here"
@@ -31,11 +33,13 @@ All API requests require a token for authentication. Tokens can be managed throu
 ```
 
 **Notes about the number parameter:**
+
 - Can be provided with or without country code (62 will be added if missing)
 - Can be provided with or without leading zero
 - Will automatically format to proper WhatsApp format
 
 **Success Response:**
+
 ```json
 {
   "success": true,
@@ -47,6 +51,7 @@ All API requests require a token for authentication. Tokens can be managed throu
 **Error Responses:**
 
 1. Missing token:
+
 ```json
 {
   "success": false,
@@ -55,6 +60,7 @@ All API requests require a token for authentication. Tokens can be managed throu
 ```
 
 2. Invalid token:
+
 ```json
 {
   "success": false,
@@ -63,6 +69,7 @@ All API requests require a token for authentication. Tokens can be managed throu
 ```
 
 3. Missing parameters:
+
 ```json
 {
   "success": false,
@@ -71,6 +78,7 @@ All API requests require a token for authentication. Tokens can be managed throu
 ```
 
 4. WhatsApp service unavailable:
+
 ```json
 {
   "success": false,
@@ -79,6 +87,7 @@ All API requests require a token for authentication. Tokens can be managed throu
 ```
 
 5. Error sending message:
+
 ```json
 {
   "success": false,

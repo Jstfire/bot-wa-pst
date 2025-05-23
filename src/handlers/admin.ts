@@ -5,7 +5,13 @@ import {
 	MAIN_MENU_NEXT,
 	SUB_MENUS,
 } from "../utils/messages";
-const ADMIN_NUMBER = "6289616370100@s.whatsapp.net";
+import { recordAdminMessage } from "../utils/session";
+
+// List of admin WhatsApp numbers
+const ADMIN_NUMBERS = [
+	"6289616370100@s.whatsapp.net",
+	"6283856685530@s.whatsapp.net",
+];
 const adminSessions = new Set<string>();
 
 export function isInAdminMode(sender: string) {
@@ -31,7 +37,6 @@ export async function enterAdminMode(
 		await sock.sendMessage(sender, { text: menuText });
 		return;
 	}
-
 	adminSessions.add(sender);
 	await sock.sendMessage(sender, {
 		text: `📨 Permintaan Anda telah diteruskan ke admin.\n⏳ Mohon ditunggu sebentar...`,
@@ -39,13 +44,31 @@ export async function enterAdminMode(
 	await sock.sendMessage(sender, {
 		text: ADMIN_END,
 	});
-	await sock.sendMessage(ADMIN_NUMBER, {
-		text: `📬 Pengguna ${sender.replace(
-			"@s.whatsapp.net",
-			""
-		)} meminta bantuan admin. Silakan respon dari akun WA Business PST BPS.`,
-	});
+
+	// Notification text for all admins
+	const notificationText = `📬 Pengguna ${sender.replace(
+		"@s.whatsapp.net",
+		""
+	)} meminta bantuan admin. Silakan respon dari akun WA Business PST BPS.`;
+
+	// Send to all admin numbers
+	for (const adminNumber of ADMIN_NUMBERS) {
+		await sock.sendMessage(adminNumber, {
+			text: notificationText,
+		});
+	}
 }
 function getHours(date: Date, options: { timeZone: string }): number {
 	return new Date(date.toLocaleString("en-US", options)).getHours();
+}
+
+// Function to check if a number is an admin
+export function isAdmin(sender: string): boolean {
+	return ADMIN_NUMBERS.includes(sender);
+}
+
+// Function to track when an admin sends a message to a user
+export function recordAdminInteraction(targetUser: string): void {
+	recordAdminMessage(targetUser);
+	console.log(`Admin interaction recorded for user: ${targetUser}`);
 }

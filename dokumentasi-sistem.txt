@@ -1,0 +1,392 @@
+# DOKUMENTASI SISTEM BOT WHATSAPP PELAYANAN STATISTIK TERPADU (PST) BPS KABUPATEN BUTON SELATAN
+
+## 1. PENDAHULUAN
+
+### 1.1 Latar Belakang
+Sistem Bot WhatsApp Pelayanan Statistik Terpadu (PST) BPS Kabupaten Buton Selatan merupakan aplikasi chatbot berbasis WhatsApp yang dikembangkan untuk memudahkan masyarakat mengakses layanan statistik yang disediakan oleh Badan Pusat Statistik (BPS) Kabupaten Buton Selatan. Sistem ini menyediakan berbagai layanan informasi dan interaksi yang dapat diakses melalui platform WhatsApp, yang merupakan salah satu aplikasi perpesanan yang paling banyak digunakan di Indonesia.
+
+### 1.2 Tujuan
+Tujuan utama dari pengembangan sistem bot WhatsApp ini adalah:
+- Meningkatkan aksesibilitas layanan PST BPS Kabupaten Buton Selatan
+- Memberikan informasi statistik kepada masyarakat secara cepat dan mudah
+- Memfasilitasi interaksi antara masyarakat dengan staf BPS Kabupaten Buton Selatan
+- Menyediakan akses terhadap publikasi dan data statistik yang dikeluarkan oleh BPS
+- Mengoptimalkan layanan Pelayanan Statistik Terpadu melalui kanal digital
+
+### 1.3 Ruang Lingkup
+Sistem Bot WhatsApp PST BPS Kabupaten Buton Selatan mencakup:
+- Penyediaan informasi layanan PST
+- Akses terhadap publikasi data statistik kabupaten dan kecamatan
+- Layanan konsultasi statistik
+- Informasi lokasi dan jadwal layanan
+- Sistem administrasi untuk pengelolaan pesan dan interaksi
+- API untuk integrasi dengan sistem lain
+
+## 2. ARSITEKTUR DAN TEKNOLOGI
+
+### 2.1 Tech Stack
+Sistem dikembangkan menggunakan teknologi-teknologi berikut:
+
+#### 2.1.1 Bahasa Pemrograman dan Environment
+- **TypeScript**: Bahasa pemrograman utama untuk pengembangan sistem
+- **Node.js**: Runtime environment untuk menjalankan aplikasi
+- **Bun**: Runtime alternatif yang digunakan untuk package management (terlihat dari file bun.lock)
+
+#### 2.1.2 Framework dan Library Utama
+- **@whiskeysockets/baileys** (v6.17.16): Library untuk berinteraksi dengan WhatsApp API
+- **Express** (v5.1.0): Web framework untuk implementasi REST API
+- **date-fns-tz** (v3.2.0): Library untuk manajemen zona waktu
+- **dotenv** (v16.5.0): Manajemen variabel lingkungan
+- **link-preview-js** (v3.0.14): Library untuk membuat preview link dalam pesan WhatsApp
+- **qrcode-terminal** (v0.12.0): Menghasilkan QR code untuk WhatsApp Web authentication
+- **body-parser** (v2.2.0): Middleware untuk parsing request body
+- **cors** (v2.8.5): Middleware untuk menangani Cross-Origin Resource Sharing
+- **express-rate-limit** (v7.5.0): Membatasi jumlah request ke API
+- **axios** (v1.9.0): HTTP client untuk melakukan request
+- **multer** (v1.4.5-lts.2): Middleware untuk handling multipart/form-data
+- **nodemailer** (v7.0.3): Library untuk mengirim email
+
+#### 2.1.3 Development Tools
+- **TypeScript** (v4.9.5): Memberikan static typing pada JavaScript
+- **ts-node** (v10.9.2): Eksekusi TypeScript secara langsung tanpa kompilasi
+- **nodemon** (v3.1.10): Utility untuk auto-restart server saat kode berubah
+
+### 2.2 Arsitektur Sistem
+Sistem Bot WhatsApp PST BPS Kabupaten Buton Selatan menggunakan arsitektur modular dengan pemisahan komponen-komponen utama:
+
+#### 2.2.1 Komponen Utama
+1. **Core WhatsApp Client**: Menggunakan library Baileys untuk terhubung dengan WhatsApp
+2. **Message Router**: Mengelola alur pesan dan respons sesuai dengan konteks percakapan
+3. **Session Manager**: Mengelola status sesi pengguna dan konteks percakapan
+4. **Admin Handler**: Menangani mode administrasi dan interaksi dengan admin
+5. **API Server**: Menyediakan REST API untuk integrasi dengan sistem eksternal
+6. **File Service**: Menangani pengiriman file PDF dan gambar
+7. **Anti-Spam System**: Mendeteksi dan menangani aktivitas spam
+
+#### 2.2.2 Struktur Direktori
+```
+bot-wa-pst/
+├── auth/                   # Data autentikasi WhatsApp
+├── data/                   # Data aplikasi (token API, dll)
+│   └── pdf/                # File PDF publikasi statistik
+├── src/
+│   ├── api/                # Implementasi REST API
+│   ├── data/               # Data aplikasi tambahan
+│   ├── handlers/           # Handler untuk berbagai jenis pesan
+│   └── utils/              # Fungsi-fungsi utilitas
+├── package.json            # Dependency dan script
+├── tsconfig.json           # Konfigurasi TypeScript
+└── bun.lock                # Lock file untuk package manager Bun
+```
+
+## 3. MEKANISME SISTEM
+
+### 3.1 Inisialisasi dan Koneksi WhatsApp
+Sistem dimulai dengan menginisialisasi koneksi ke WhatsApp menggunakan library Baileys. Proses inisialisasi meliputi:
+1. Memuat kredensial dari direktori auth/ (jika ada)
+2. Menampilkan QR code untuk autentikasi (jika belum terautentikasi)
+3. Memulai listener untuk pesan masuk
+4. Menginisialisasi API server untuk integrasi eksternal
+
+Kode inisialisasi utama pada file `src/index.ts`:
+```typescript
+async function startBot() {
+    const { state, saveCreds } = await useMultiFileAuthState("auth");
+    const sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: true,
+    });
+
+    sock.ev.on("creds.update", saveCreds);
+    // Event handlers lainnya
+    
+    // Initialize API with the connected socket
+    initApi(sock);
+    
+    // Session timeout cleaner
+    initSessionCleaner();
+}
+```
+
+### 3.2 Pengelolaan Sesi Pengguna
+Sistem mengimplementasikan mekanisme pengelolaan sesi untuk melacak status interaksi dengan setiap pengguna. Sesi mencakup:
+
+- **Level Menu**: Posisi pengguna dalam hirarki menu
+- **Status Menu**: Apakah pengguna sedang aktif dalam mode menu
+- **Timestamp Aktivitas**: Waktu terakhir pengguna aktif
+- **Timestamp Pesan Selamat Datang**: Waktu terakhir pesan selamat datang dikirim
+- **Timestamp Notifikasi Admin**: Waktu terakhir admin diberitahu tentang pengguna ini
+- **Status Admin Mode**: Apakah pengguna sedang dalam mode admin
+
+Mekanisme timeout diimplementasikan untuk:
+- Sesi menu yang tidak aktif selama 3 jam akan otomatis dihapus
+- Pesan selamat datang hanya dikirim sekali dalam 7 hari
+- Notifikasi ke admin hanya dikirim sekali dalam 24 jam untuk setiap pengguna
+
+### 3.3 Alur Pesan
+Alur utama pemrosesan pesan terdiri dari:
+
+1. **Validasi Pesan**: Memeriksa apakah pesan berasal dari pengguna (bukan bot)
+2. **Pemeriksaan Blokir**: Memeriksa apakah pengguna diblokir karena spam
+3. **Pemeriksaan Mode Admin**: Menangani pesan jika pengguna sedang dalam mode admin
+4. **Pembaruan Sesi**: Memperbarui timestamp aktivitas pengguna
+5. **Pemeriksaan Timeout**: Memeriksa apakah sesi telah kedaluwarsa
+6. **Pemeriksaan Pesan Selamat Datang**: Mengirim pesan selamat datang jika diperlukan
+7. **Pemeriksaan Perintah Menu**: Membuka menu jika pengguna mengetik "menu"
+8. **Notifikasi Admin**: Mengirimkan notifikasi ke admin jika pengguna tidak dalam mode menu
+9. **Pemrosesan Menu**: Memproses input pengguna sesuai dengan level menu
+
+### 3.4 Sistem Anti-Spam
+Sistem dilengkapi mekanisme anti-spam untuk mencegah penyalahgunaan. Fitur ini mencakup:
+
+- Menghitung jumlah pesan yang dikirim dalam interval waktu tertentu (30 detik)
+- Membedakan input yang valid (sesuai konteks menu) dengan input tidak valid
+- Memblokir pengguna jika mengirim terlalu banyak pesan (>30 pesan dalam 30 detik)
+- Memblokir lebih cepat untuk input tidak valid (>5 pesan tidak valid dalam 30 detik)
+- Membatasi peringatan hanya 3 kali per periode blokir
+- Memberi notifikasi ke admin tentang pengguna yang diblokir karena spam
+- Menyimpan data blokir ke file untuk persistensi antar restart
+
+### 3.5 REST API
+Sistem menyediakan REST API untuk integrasi eksternal dengan fitur:
+
+- Autentikasi berbasis token
+- Endpoint untuk mengirim pesan teks
+- Endpoint untuk mengirim pesan gambar
+- Endpoint untuk validasi nomor WhatsApp
+- Manajemen token API (generate, revoke, list)
+- Rate limiting untuk mencegah penyalahgunaan
+
+## 4. FITUR SISTEM
+
+### 4.1 Menu Layanan Utama
+Sistem menyediakan delapan menu layanan utama:
+
+1. **Lokasi & Jadwal PST**: Informasi mengenai lokasi dan jam operasional PST
+2. **Perpustakaan**: Akses ke perpustakaan online dan informasi perpustakaan fisik
+3. **Rekomendasi Statistik**: Pengajuan rekomendasi statistik dan konsultasi
+4. **Konsultasi Statistik**: Layanan konsultasi via WhatsApp atau kunjungan langsung
+5. **Statistik Umum**: Informasi statistik terkini tentang Kabupaten Buton Selatan
+6. **Publikasi DDA**: Data tingkat kabupaten dalam bentuk PDF
+7. **Publikasi KCDA**: Data per kecamatan dalam bentuk PDF
+8. **Chat Admin**: Layanan komunikasi langsung dengan admin BPS
+
+### 4.2 Fitur Perpustakaan
+Menu perpustakaan memberikan:
+- Link ke PST Online (perpustakaan.bps.go.id/opac/)
+- Informasi lokasi dan jadwal buka perpustakaan fisik
+
+### 4.3 Fitur Rekomendasi Statistik
+Fitur ini menyediakan:
+- Link ke Web Romantik (romantik.web.bps.go.id) untuk pengajuan rekomendasi online
+- Opsi untuk chat dengan admin untuk konsultasi
+
+### 4.4 Fitur Konsultasi Statistik
+Menu konsultasi menawarkan:
+- Opsi untuk konsultasi via WhatsApp dengan admin
+- Informasi untuk kunjungan langsung ke kantor BPS
+
+### 4.5 Fitur Statistik Umum
+Menyajikan informasi statistik penting, termasuk:
+- Data penduduk Kabupaten Buton Selatan
+- Indeks Pembangunan Manusia (IPM)
+- Persentase penduduk miskin
+- Data PDRB (Produk Domestik Regional Bruto)
+- Data ketenagakerjaan
+
+### 4.6 Fitur Publikasi DDA (Data Daerah Dalam Angka)
+Menyediakan akses ke publikasi data tingkat kabupaten dalam format PDF.
+
+### 4.7 Fitur Publikasi KCDA (Kecamatan Dalam Angka)
+Memberikan akses ke publikasi data untuk 7 kecamatan:
+1. Kecamatan Batu Atas
+2. Kecamatan Lapandewa
+3. Kecamatan Sampolawa
+4. Kecamatan Batauga
+5. Kecamatan Siompu Barat
+6. Kecamatan Siompu
+7. Kecamatan Kadatua
+
+### 4.8 Fitur Chat dengan Admin
+Fitur ini memungkinkan:
+- Komunikasi langsung dengan admin PST BPS
+- Pemeriksaan jam layanan admin (08.00 - 20.00 WITA)
+- Notifikasi ke admin tentang permintaan bantuan
+- Opsi untuk keluar dari mode admin
+
+### 4.9 Fitur API Eksternal
+REST API menyediakan:
+- Endpoint untuk mengirim pesan WhatsApp melalui sistem
+- Endpoint untuk mengirim gambar dengan caption
+- Sistem validasi nomor WhatsApp
+- Management token untuk autentikasi
+
+## 5. ALUR KERJA PENGGUNAAN SISTEM
+
+### 5.1 Alur Pengguna Umum
+1. **Inisiasi Kontak**: Pengguna mengirim pesan ke nomor WhatsApp PST BPS
+2. **Pesan Selamat Datang**: Sistem merespon dengan pesan selamat datang singkat, menginformasikan untuk mengetik "menu" untuk melihat layanan yang tersedia
+3. **Akses Menu**: Pengguna mengetik "menu" untuk mengakses daftar layanan
+4. **Navigasi Menu**: Pengguna mengetik angka untuk memilih layanan yang diinginkan
+5. **Interaksi Sub-Menu**: Sistem menampilkan sub-menu berdasarkan pilihan pengguna
+6. **Akses Konten**: Pengguna mendapatkan informasi, file, atau layanan sesuai pilihan
+7. **Kembali ke Menu Utama**: Pengguna dapat kembali ke menu utama dengan mengetik "99"
+
+### 5.2 Alur Komunikasi dengan Admin
+1. **Pengguna memilih opsi chat admin** dari menu utama atau sub-menu
+2. **Sistem memeriksa jam operasional admin** (08.00 - 20.00 WITA)
+3. **Jika dalam jam operasional**, pengguna dimasukkan ke mode admin dan admin diberi notifikasi
+4. **Pengguna dan admin berkomunikasi** melalui WhatsApp
+5. **Pengguna dapat keluar dari mode admin** dengan mengetik "00"
+
+### 5.3 Alur Akses Dokumen
+1. **Pengguna memilih menu publikasi** (DDA atau KCDA)
+2. **Untuk KCDA, pengguna memilih kecamatan** yang diinginkan
+3. **Sistem mengirimkan file PDF** publikasi yang dipilih
+4. **Sistem memberikan informasi tambahan** seperti link website BPS
+
+### 5.4 Mekanisme Timeout dan Reset
+1. **Timeout Sesi Menu**: Jika pengguna tidak aktif selama 3 jam dalam mode menu, sistem akan mengirim notifikasi timeout dan mereset status menu
+2. **Reset Pesan Selamat Datang**: Pesan selamat datang akan dikirim kembali setelah 7 hari ketidakaktifan pengguna
+3. **Batasan Notifikasi Admin**: Notifikasi ke admin tentang pesan dari pengguna (di luar mode menu) hanya dikirim sekali dalam 24 jam
+
+### 5.5 Alur Penggunaan API
+1. **Perolehan Token API**: Administrator sistem memperoleh token API melalui panel admin
+2. **Integrasi API**: Sistem eksternal mengintegrasikan API dengan menyertakan token dalam header Authorization
+3. **Pengiriman Pesan**: Sistem eksternal dapat mengirim pesan atau gambar melalui API
+4. **Pemantauan Penggunaan**: Administrator dapat memantau penggunaan API melalui panel admin
+
+## 6. IMPLEMENTASI TEKNIS
+
+### 6.1 Struktur Kode
+Implementasi sistem dibagi menjadi beberapa komponen utama:
+
+#### 6.1.1 Entrypoint (`src/index.ts`)
+File ini memuat inisialisasi sistem, termasuk koneksi WhatsApp dan penyiapan event listener untuk pesan masuk. Juga menginisialisasi API server dan session cleaner.
+
+#### 6.1.2 Router Pesan (`src/handlers/router.ts`)
+Komponen inti yang menangani routing pesan berdasarkan status pengguna dan input yang diberikan. Mencakup logika untuk mengarahkan pesan ke handler yang sesuai.
+
+#### 6.1.3 Pengelolaan Sesi (`src/utils/session.ts`)
+Menyediakan fungsi-fungsi untuk mengelola sesi pengguna, seperti:
+```typescript
+export function setSession(sender: string) {
+    if (!sessions[sender]) sessions[sender] = { lastActive: Date.now() };
+    sessions[sender].lastActive = Date.now();
+    sessions[sender].lastUserMessage = Date.now();
+}
+
+export function shouldSendWelcomeMessage(sender: string): boolean {
+    const session = sessions[sender];
+    if (!session) return true;
+    if (!session.lastWelcomeMessage) return true;
+    const lastUserMessageTime = session.lastUserMessage || 0;
+    return Date.now() - lastUserMessageTime > 7 * 24 * 60 * 60 * 1000;
+}
+```
+
+#### 6.1.4 Konten Pesan (`src/utils/messages.ts`)
+Mendefinisikan teks yang digunakan dalam berbagai pesan yang dikirim oleh bot, seperti menu, informasi, dan notifikasi.
+
+#### 6.1.5 Mode Admin (`src/handlers/admin.ts`)
+Menangani interaksi dalam mode admin, termasuk validasi jam operasional dan notifikasi ke admin.
+
+#### 6.1.6 Anti-Spam (`src/utils/antispam.ts`)
+Menerapkan logika untuk mendeteksi dan menangani aktivitas spam.
+
+#### 6.1.7 REST API (`src/api/server.ts` dan terkait)
+Implementasi REST API dengan Express, termasuk autentikasi token dan endpoint untuk integrasi eksternal.
+
+### 6.2 Manajemen State
+State sistem dikelola melalui:
+- **Sesi Pengguna**: Menyimpan informasi status pengguna dalam memori
+- **Persistensi File**: Menyimpan beberapa data (seperti informasi pemblokiran) dalam file
+- **Autentikasi WhatsApp**: Menyimpan kredensial dalam direktori auth/
+
+### 6.3 Pengiriman Pesan dan Media
+Sistem menggunakan fitur Baileys untuk mengirim berbagai jenis konten:
+- **Pesan Teks**: Pengiriman pesan teks sederhana
+- **Lokasi**: Mengirim koordinat lokasi dengan nama dan alamat
+- **Link Preview**: Mengirim link dengan preview menggunakan library link-preview-js
+- **Dokumen PDF**: Mengirim file PDF dari sistem file lokal
+
+### 6.4 Manajemen Token API
+Implementasi untuk manajemen token API mencakup:
+- **Generasi Token**: Menghasilkan token acak menggunakan crypto
+- **Validasi Token**: Memeriksa keabsahan token untuk setiap permintaan API
+- **Pencatatan Penggunaan**: Mencatat waktu penggunaan terakhir token
+
+### 6.5 Pemrosesan Input Pengguna
+Input pengguna diproses berdasarkan konteks percakapan:
+- **Validasi Level Menu**: Input disesuaikan dengan level menu pengguna saat ini
+- **Pemrosesan Perintah Khusus**: Mengenali perintah seperti "menu", "99", dan "00"
+- **Penanganan Input Tidak Valid**: Memberikan respons yang sesuai untuk input tidak valid
+
+## 7. PENGUJIAN SISTEM
+
+### 7.1 Metode Pengujian
+Sistem dapat diuji melalui beberapa metode:
+- **Pengujian Manual**: Mengirim pesan langsung ke nomor WhatsApp bot
+- **Pengujian API**: Menggunakan script test-api.js untuk menguji endpoint API
+- **Pemantauan Log**: Memeriksa output log untuk aktivitas sistem
+
+### 7.2 Contoh Pengujian API
+Sistem menyediakan script pengujian API (`src/api/test-api.js`) yang mencakup:
+- Pengujian generasi token API
+- Pengujian pengiriman pesan teks
+- Pengujian pengiriman pesan gambar
+- Pengujian validasi nomor
+- Pengujian autentikasi token
+
+## 8. DEPLOYMENT DAN MAINTENANCE
+
+### 8.1 Kebutuhan Deployment
+Untuk men-deploy sistem, diperlukan:
+- **Node.js** versi 14 atau lebih baru
+- **Koneksi Internet** stabil untuk WhatsApp Web
+- **File .env** dengan konfigurasi yang sesuai
+- **Direktori Data** untuk menyimpan file PDF dan informasi lain
+
+### 8.2 Langkah Deployment
+1. **Clone repository** ke server target
+2. **Install dependencies**: `npm install` atau `bun install`
+3. **Build aplikasi**: `npm run build`
+4. **Persiapkan file .env** dengan konfigurasi yang sesuai
+5. **Start aplikasi**: `npm start` atau gunakan process manager seperti PM2
+
+### 8.3 Maintenance
+Maintenance rutin meliputi:
+- **Pembaruan data statistik** dalam sistem
+- **Monitoring aktivitas spam** dan pembatasan
+- **Backup file autentikasi** WhatsApp secara berkala
+- **Pengelolaan token API** yang tidak lagi digunakan
+
+## 9. KEAMANAN SISTEM
+
+### 9.1 Autentikasi WhatsApp
+Keamanan koneksi WhatsApp menggunakan:
+- **Autentikasi QR Code** pada saat inisialisasi
+- **Session credential storage** untuk mempertahankan sesi
+- **Multi-device support** melalui Baileys
+
+### 9.2 Keamanan API
+Keamanan API mencakup:
+- **Token-based authentication** untuk semua endpoint
+- **Rate limiting** untuk mencegah penyalahgunaan
+- **Validasi input** untuk semua parameter request
+- **CORS protection** untuk keamanan browser
+
+### 9.3 Perlindungan Terhadap Spam
+Sistem menerapkan beberapa lapisan perlindungan anti-spam:
+- **Monitoring frekuensi pesan** dalam interval waktu tertentu
+- **Differensiasi pesan valid vs tidak valid** untuk deteksi lebih cepat
+- **Automatic blocking** untuk pengguna yang melanggar batas
+- **Admin notification** untuk aktivitas spam yang terdeteksi
+
+## 10. KESIMPULAN
+
+Bot WhatsApp Pelayanan Statistik Terpadu (PST) BPS Kabupaten Buton Selatan merupakan implementasi teknologi digital untuk meningkatkan aksesibilitas layanan publik. Sistem yang dibangun dengan TypeScript dan Node.js ini memanfaatkan WhatsApp sebagai platform komunikasi yang sudah familiar bagi masyarakat.
+
+Dengan fitur-fitur seperti navigasi menu interaktif, akses ke publikasi statistik, dan komunikasi langsung dengan admin, sistem ini memudahkan masyarakat untuk mendapatkan informasi statistik dan layanan BPS tanpa harus datang langsung ke kantor. Selain itu, adanya REST API memungkinkan integrasi dengan sistem eksternal untuk pengembangan lebih lanjut.
+
+Implementasi mekanisme pelindungan seperti anti-spam dan manajemen sesi memastikan sistem dapat berjalan dengan efisien dan aman. Desain modular sistem juga memungkinkan pengembangan fitur baru dengan lebih mudah di masa mendatang.

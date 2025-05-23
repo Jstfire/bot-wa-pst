@@ -2,13 +2,14 @@ export const MAIN_MENU = `🎉 Selamat datang di *Pelayanan Statistik Terpadu (P
 
 Silakan pilih layanan yang Anda butuhkan dengan mengetik angka sesuai pilihan berikut:
 
-1. 📚 Perpustakaan – Akses buku & referensi statistik
-2. 📄 Rekomendasi Statistik – Ajukan surat rekomendasi survei
-3. 🧑‍🏫 Konsultasi Statistik – Tanya data, metode, atau analisis
-4. 📈 Statistik Umum – Info terkini Buton Selatan
-5. 📘 Publikasi DDA – Data lengkap tingkat kabupaten
-6. 📗 Publikasi KCDA – Data per kecamatan
-7. 💬 Chat Admin – Hubungi petugas langsung
+1. 📍 Lokasi & Jadwal PST – Temukan kami offline
+2. 📚 Perpustakaan – Akses buku & referensi statistik
+3. 📄 Rekomendasi Statistik – Ajukan surat rekomendasi survei
+4. 🧑‍🏫 Konsultasi Statistik – Tanya data, metode, atau analisis
+5. 📈 Statistik Umum – Info terkini Buton Selatan
+6. 📘 Publikasi DDA – Data lengkap tingkat kabupaten
+7. 📗 Publikasi KCDA – Data per kecamatan
+8. 💬 Chat Admin – Hubungi petugas langsung
 
 📌 Cukup ketik angka layanan (contoh: 3) untuk mulai.
 
@@ -18,13 +19,14 @@ Kunjungi buselkab.bps.go.id untuk data dan publikasi lainnya.
 
 export const MAIN_MENU_NEXT = `Silakan pilih layanan yang Anda butuhkan dengan mengetik angka sesuai pilihan berikut:
 
-1. 📚 Perpustakaan – Akses buku & referensi statistik
-2. 📄 Rekomendasi Statistik – Ajukan surat rekomendasi survei
-3. 🧑‍🏫 Konsultasi Statistik – Tanya data, metode, atau analisis
-4. 📈 Statistik Umum – Info terkini Buton Selatan
-5. 📘 Publikasi DDA – Data lengkap tingkat kabupaten
-6. 📗 Publikasi KCDA – Data per kecamatan
-7. 💬 Chat Admin – Hubungi petugas langsung
+1. 📍 Lokasi & Jadwal PST – Temukan kami offline
+2. 📚 Perpustakaan – Akses buku & referensi statistik
+3. 📄 Rekomendasi Statistik – Ajukan surat rekomendasi survei
+4. 🧑‍🏫 Konsultasi Statistik – Tanya data, metode, atau analisis
+5. 📈 Statistik Umum – Info terkini Buton Selatan
+6. 📘 Publikasi DDA – Data lengkap tingkat kabupaten
+7. 📗 Publikasi KCDA – Data per kecamatan
+8. 💬 Chat Admin – Hubungi petugas langsung
 
 📌 Cukup ketik angka layanan (contoh: 3) untuk mulai.
 
@@ -32,44 +34,51 @@ Kunjungi buselkab.bps.go.id untuk data dan publikasi lainnya.
 
 > _Pesan ini dikirim otomatis oleh Bot PST BPS Kabupaten Buton Selatan._ `;
 
+// Revised Welcome Message - Short and Simple
+export const WELCOME_MESSAGE = `🎉 *Selamat datang di WhatsApp PST BPS Kabupaten Buton Selatan* 🎉
+
+Ketik *menu* untuk melihat pilihan layanan yang tersedia.
+
+> _Pesan ini dikirim otomatis oleh Bot PST BPS Kabupaten Buton Selatan._`;
+
+// Menu State Expired Message - Revised for clarity
+export const MENU_EXPIRED = `⌛ *Sesi menu Anda telah berakhir karena tidak ada aktivitas selama 3 jam.*
+
+Ketik *menu* jika Anda ingin melihat pilihan layanan kembali.
+
+Jika Anda memerlukan bantuan langsung, silakan tuliskan pesan dan admin kami akan segera membantu Anda.`;
+
 export const SUB_MENUS: Record<string, string> = {
 	"1": `*📚 Menu Perpustakaan*
 
-Temukan sumber informasi statistik yang Anda butuhkan melalui layanan kami:
+1. *PST Online* 🌐 – Akses koleksi buku dan publikasi BPS secara online
+2. *Lokasi & Jadwal* 📍🕒 – Informasi lokasi dan jam buka perpustakaan
 
-1. *PST _Online_* 🌐 – Akses koleksi buku dan referensi statistik secara daring, kapan saja dan di mana saja
-2. *Lokasi & Jadwal PST _Offline_* 📍🕒 – Informasi lengkap tentang lokasi dan waktu layanan perpustakaan fisik kami
+99. *Kembali ke menu utama* 🔄
 
-99. 🔙 *Kembali ke menu utama* 🔁
-
-💡 Ketik angka sesuai pilihan Anda untuk melanjutkan.`,
+> Ketik angka pilihan Anda`,
 
 	"2": `*📄 Rekomendasi Statistik*
 
-Layanan ini membantu Anda dalam mengurus surat rekomendasi kegiatan statistik sesuai prosedur resmi. Silakan pilih submenu berikut:
+1. *Web Romantik* 🌐 – Ajukan rekomendasi statistik online
+2. *Chat Admin* 💬 – Konsultasi dengan petugas kami
 
-1. *Web Romantik* 🌐 – Ajukan permohonan rekomendasi statistik secara online melalui sistem Romantik BPS
-2. *Chat dengan admin* 💬 – Konsultasikan langsung kebutuhan atau kendala Anda dengan petugas kami
+99. *Kembali ke menu utama* 🔄
 
-99. *Kembali ke menu utama* 🔁
-
-💡 Ketik angka sesuai pilihan Anda untuk melanjutkan.`,
+> Ketik angka pilihan Anda`,
 
 	"3": `*🧑‍🏫 Konsultasi Statistik*
 
-Butuh bantuan memahami data, metode, atau analisis statistik? Kami siap membantu! Silakan pilih cara konsultasi yang Anda inginkan:
+1. *Chat Admin* 💬 – Konsultasi via WhatsApp
+2. *Kunjungan Offline* 📍 – Informasi kunjungan ke kantor
 
-1. *Chat dengan admin* 💬 – Konsultasi secara langsung melalui pesan dengan petugas statistik kami
-2. *Bertemu offline* 📍 – Atur jadwal untuk bertemu langsung di kantor BPS Kabupaten Buton Selatan
+99. *Kembali ke menu utama* 🔄
 
-99. *Kembali ke menu utama* 🔁
+> Ketik angka pilihan Anda`,
 
-💡 Ketik angka sesuai pilihan Anda untuk melanjutkan.`,
+	"6": `*📗 Menu Publikasi KCDA*
 
-	"6": `*📗 Menu Publikasi KCDA (Kecamatan Dalam Angka)*
-
-Akses data lengkap dan terpercaya dari setiap kecamatan di Kabupaten Buton Selatan.
-Silakan pilih publikasi yang ingin Anda lihat:
+Silakan pilih kecamatan:
 
 1. *Kecamatan Batu Atas* 📊
 2. *Kecamatan Lapandewa* 📊
@@ -79,10 +88,18 @@ Silakan pilih publikasi yang ingin Anda lihat:
 6. *Kecamatan Siompu* 📊
 7. *Kecamatan Kadatua* 📊
 
-99. Kembali ke menu utama 🔁
+99. *Kembali ke menu utama* 🔄
 
-💡 Ketik angka sesuai kecamatan yang ingin Anda akses.
-`,
+> Ketik angka kecamatan yang ingin Anda akses`,
+
+	"8": `*📍 Lokasi & Jadwal Layanan*
+
+1. *Lokasi Kantor* 📍 – Lihat lokasi BPS Buton Selatan di peta
+2. *Jadwal Layanan* 🕒 – Informasi jam operasional PST
+
+99. *Kembali ke menu utama* 🔄
+
+> Ketik angka pilihan Anda`,
 };
 
 export const STATISTIK_UMUM = `*📊 Statistik Umum Kabupaten Buton Selatan*
@@ -110,13 +127,20 @@ export const LOKASI = `*📍 Lokasi Pelayanan Statistik Terpadu (PST) BPS Kabupa
 
 🗺️ Google Maps: `;
 
-export const JADWAL_BUKA = `*🕒 Jadwal Pelayanan:*
+// Revised for clarity
+export const JADWAL_BUKA = `*🕒 Jadwal Pelayanan PST:*
 
 * 📅 *Senin – Kamis:* 07.30 – 16.00 WITA
 * 📅 *Jumat:* 07.30 – 16.30 WITA
 * ❌ *Sabtu & Minggu:* Libur
 
-💡 Silakan kunjungi kami sesuai jam layanan untuk mendapatkan pelayanan data dan konsultasi statistik secara langsung. Kami siap membantu Anda! 🙌
+💡 Silakan kunjungi kami sesuai jam layanan untuk mendapatkan pelayanan data dan konsultasi statistik secara langsung.
+`;
+
+// Information message for PST Location
+export const PST_LOCATION_INFO = `*📍 Lokasi dan Jadwal PST BPS Kabupaten Buton Selatan*
+
+Berikut lokasi dan jadwal pelayanan Pelayanan Statistik Terpadu (PST) BPS Kabupaten Buton Selatan:
 `;
 
 export const ADMIN_JAM = `⏰ *Jam Operasional Admin:* 08.00 – 20.00 WITA

@@ -1,0 +1,143 @@
+# DOKUMENTASI MANAJEMEN SESI WHATSAPP BOT PST BPS KABUPATEN BUTON SELATAN
+
+## TUJUAN MANAJEMEN SESI
+
+Manajemen sesi dalam sistem WhatsApp Bot PST BPS Kabupaten Buton Selatan dirancang untuk:
+1. Mengelola interaksi pengguna dengan sistem bot secara efisien
+2. Melacak status percakapan pengguna dengan admin
+3. Mengoptimalkan pengalaman pengguna dengan menghindari pengulangan pesan yang tidak perlu
+4. Memberikan konteks yang tepat untuk setiap interaksi
+
+## KOMPONEN MANAJEMEN SESI
+
+Manajemen sesi terdiri dari beberapa komponen utama:
+
+### 1. Struktur Data Sesi
+
+```typescript
+const sessions: Record<
+    string,
+    {
+        level?: string;              // Level menu yang sedang diakses
+        lastActive: number;          // Waktu terakhir pengguna aktif
+        admin?: boolean;             // Status admin
+        lastWelcomeMessage?: number; // Waktu terakhir pesan selamat datang dikirim
+        inMenuState?: boolean;       // Status apakah pengguna dalam mode menu
+        menuStateStart?: number;     // Waktu mulai mode menu
+        lastUserMessage?: number;    // Waktu terakhir pengguna mengirim pesan
+        lastAdminNotification?: number; // Waktu terakhir admin diberi notifikasi
+        lastAdminMessage?: number;   // Waktu terakhir admin mengirim pesan ke pengguna
+        adminInteracted?: boolean;   // Flag admin pernah berinteraksi dengan pengguna
+    }
+> = {};
+```
+
+### 2. Fungsi Manajemen Sesi
+
+#### 2.1 Pembuatan dan Pembaruan Sesi
+
+- `setSession(sender: string)`: Membuat atau memperbarui sesi pengguna
+- `getSession(sender: string)`: Mendapatkan data sesi pengguna
+- `clearSession(sender: string)`: Menghapus sesi pengguna dengan mempertahankan data penting
+- `recordWelcomeMessage(sender: string)`: Mencatat waktu pesan selamat datang dikirim
+
+#### 2.2 Manajemen Status Menu
+
+- `setMenuState(sender: string, inMenu: boolean)`: Mengatur status menu pengguna
+- `isInMenuState(sender: string)`: Memeriksa apakah pengguna sedang dalam mode menu
+
+#### 2.3 Manajemen Interaksi Admin
+
+- `recordAdminMessage(sender: string)`: Mencatat waktu admin mengirim pesan ke pengguna
+- `recordAdminNotification(sender: string)`: Mencatat waktu admin diberi notifikasi
+- `shouldNotifyAdmin(sender: string)`: Memeriksa apakah perlu memberi notifikasi ke admin
+
+#### 2.4 Pemeliharaan Sesi
+
+- `isSessionExpired(sender: string)`: Memeriksa apakah sesi telah kedaluwarsa
+- `initSessionCleaner()`: Menginisialisasi pembersih sesi otomatis
+
+## ALGORITMA PENGAMBILAN KEPUTUSAN PESAN SELAMAT DATANG
+
+Pesan selamat datang dikirim berdasarkan algoritma yang diatur dalam fungsi `shouldSendWelcomeMessage(sender: string)`:
+
+```typescript
+export function shouldSendWelcomeMessage(sender: string): boolean {
+    const session = sessions[sender];
+    if (!session) return true;
+
+    if (!session.lastWelcomeMessage) return true;
+
+    // Get last user message time (or default to 0 if not set)
+    const lastUserMessageTime = session.lastUserMessage || 0;
+
+    // If an admin has interacted with the user
+    if (session.adminInteracted && session.lastAdminMessage) {
+        // If user's last message is AFTER admin's last message, 
+        // this means the user has replied to admin, don't send welcome message
+        if (lastUserMessageTime > session.lastAdminMessage) {
+            return false;
+        }
+        
+        // If admin messaged user but user didn't reply within 5 days,
+        // resume sending welcome messages
+        const timeSinceAdminMessage = Date.now() - session.lastAdminMessage;
+        if (
+            session.lastAdminMessage > lastUserMessageTime &&
+            timeSinceAdminMessage > 5 * 24 * 60 * 60 * 1000
+        ) {
+            return true;
+        }
+    }
+
+    // Default behavior: Only send welcome message if 7 days have passed 
+    // since the user's last message
+    return Date.now() - lastUserMessageTime > 7 * 24 * 60 * 60 * 1000;
+}
+```
+
+### Aturan Pengiriman Pesan Selamat Datang:
+
+1. **Pengguna Baru:** Jika pengguna belum memiliki sesi atau belum pernah menerima pesan selamat datang, kirim pesan selamat datang.
+
+2. **Interaksi dengan Admin:**
+   - Jika admin telah berinteraksi dengan pengguna dan pengguna telah membalas (lastUserMessage > lastAdminMessage), JANGAN kirim pesan selamat datang.
+   - Jika pengguna tidak membalas pesan admin dalam 5 hari (lastAdminMessage > lastUserMessage dan selisih > 5 hari), KIRIM pesan selamat datang.
+
+3. **Pengguna Tidak Aktif:**
+   - Jika sudah 7 hari sejak pesan terakhir pengguna, KIRIM pesan selamat datang.
+
+## ALUR INTERAKSI LENGKAP
+
+1. **Pengguna Pertama Kali Mengakses Bot:**
+   - Sistem membuat sesi baru
+   - Sistem mengirim pesan selamat datang
+   - Sistem mencatat waktu pengiriman pesan selamat datang
+
+2. **Pengguna Mengirim Pesan:**
+   - Sistem memperbarui timestamp lastUserMessage dan lastActive
+   - Jika dalam mode menu, sistem merespon sesuai pilihan menu
+   - Jika tidak dalam mode menu, sistem mengirim notifikasi ke admin (jika belum dinotifikasi dalam 24 jam)
+
+3. **Admin Merespon Pengguna:**
+   - Saat admin merespon, sistem mencatat lastAdminMessage dan mengatur adminInteracted = true
+   - Ketika pengguna membalas admin, welcome message tidak akan dikirim
+
+4. **Jika Pengguna Tidak Membalas Admin dalam 5 Hari:**
+   - Saat pengguna kembali mengirim pesan, sistem akan mengirim welcome message lagi
+
+5. **Pengguna Tidak Aktif Selama 7 Hari:**
+   - Saat pengguna kembali mengirim pesan, sistem akan mengirim pesan selamat datang
+   - Proses dimulai dari awal
+
+## KEUNTUNGAN SISTEM MANAJEMEN SESI
+
+1. **Konsistensi Pengalaman Pengguna:** Pengguna tidak dibingungkan dengan pesan selamat datang berulang-ulang jika sedang dalam percakapan aktif dengan admin.
+
+2. **Efisiensi Komunikasi:** Pesan selamat datang hanya dikirim saat dibutuhkan, yaitu ketika pengguna pertama kali menggunakan bot atau kembali setelah jangka waktu tertentu.
+
+3. **Konteks Percakapan Terjaga:** Pelacakan interaksi admin dan pengguna memastikan konteks percakapan terjaga dengan baik.
+
+4. **Optimalisasi Notifikasi:** Admin hanya mendapat notifikasi pengguna secara berkala, tidak membanjiri pesan berulang.
+
+5. **Diferensiasi Pengguna Aktif vs Tidak Aktif:** Sistem dapat membedakan pengguna aktif dan tidak aktif secara otomatis, memungkinkan penanganan yang sesuai.

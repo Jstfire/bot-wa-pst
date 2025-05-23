@@ -32,15 +32,18 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 **Endpoint:** `POST /api/send-message`
 
 **Header:**
+
 - Content-Type: application/json
 - Authorization: Bearer YOUR_API_TOKEN
 
 **Parameter Body:**
+
 - `number` (wajib): Nomor WhatsApp tujuan. Bisa dengan atau tanpa kode negara.
   Contoh: "085123456789" atau "6285123456789"
 - `message` (wajib): Teks pesan yang akan dikirim
 
 **Contoh Request:**
+
 ```json
 {
   "number": "085123456789", 
@@ -49,6 +52,7 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 ```
 
 **Contoh Response:**
+
 ```json
 {
   "success": true,
@@ -62,16 +66,19 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 **Endpoint:** `POST /api/send-image`
 
 **Header:**
+
 - Content-Type: application/json
 - Authorization: Bearer YOUR_API_TOKEN
 
 **Parameter Body:**
+
 - `number` (wajib): Nomor WhatsApp tujuan. Bisa dengan atau tanpa kode negara.
   Contoh: "085123456789" atau "6285123456789"
 - `imageUrl` (wajib): URL gambar yang akan dikirim. Harus URL yang dapat diakses publik
 - `caption` (opsional): Teks caption untuk gambar
 
 **Contoh Request:**
+
 ```json
 {
   "number": "085123456789",
@@ -81,6 +88,7 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 ```
 
 **Contoh Response:**
+
 ```json
 {
   "success": true,
@@ -94,14 +102,17 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 **Endpoint:** `POST /api/check-number`
 
 **Header:**
+
 - Content-Type: application/json
 - Authorization: Bearer YOUR_API_TOKEN
 
 **Parameter Body:**
+
 - `number` (wajib): Nomor WhatsApp yang akan diperiksa. Bisa dengan atau tanpa kode negara.
   Contoh: "085123456789" atau "6285123456789"
 
 **Contoh Request:**
+
 ```json
 {
   "number": "085123456789"
@@ -109,6 +120,7 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 ```
 
 **Contoh Response:**
+
 ```json
 {
   "success": true,
@@ -122,10 +134,12 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 **Endpoint:** `POST /api/tokens/generate`
 
 **Parameter Body:**
+
 - `adminKey` (wajib): Kunci admin untuk otorisasi
 - `name` (wajib): Nama untuk mengidentifikasi token
 
 **Contoh Request:**
+
 ```json
 {
   "adminKey": "buselkab-bps-admin",
@@ -134,6 +148,7 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 ```
 
 **Contoh Response:**
+
 ```json
 {
   "success": true,
@@ -146,6 +161,7 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 **Endpoint:** `GET /api/tokens?adminKey=buselkab-bps-admin`
 
 **Contoh Response:**
+
 ```json
 {
   "success": true,
@@ -165,6 +181,7 @@ Token dikelola oleh administrator melalui antarmuka admin atau endpoint API. Set
 **Endpoint:** `DELETE /api/tokens/:tokenId?adminKey=buselkab-bps-admin`
 
 **Contoh Response:**
+
 ```json
 {
   "success": true,
